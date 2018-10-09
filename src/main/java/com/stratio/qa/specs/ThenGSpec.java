@@ -621,7 +621,7 @@ public class ThenGSpec extends BaseGSpec {
      * @param cookieName string with the name of the cookie
      */
     @Then("^The cookie name '(.+?)' exists in the cookies saved$")
-    public void checkIfCookieExists(String cookieName){
+    public void checkIfCookieExists(String cookieName) {
         Assertions.assertThat(commonspec.cookieExists(cookieName)).isEqualTo(true);
 
     }

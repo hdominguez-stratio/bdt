@@ -1355,7 +1355,7 @@ public class CommonG {
         return seleniumCookies;
     }
 
-    public boolean cookieExists(String cookieName){
+    public boolean cookieExists(String cookieName) {
         if (this.getSeleniumCookies() != null && this.getSeleniumCookies().size() != 0) {
             for (org.openqa.selenium.Cookie cookie: this.getSeleniumCookies()) {
                 if (cookie.getName().contains(cookieName)) {
