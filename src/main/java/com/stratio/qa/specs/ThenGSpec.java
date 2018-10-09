@@ -615,6 +615,21 @@ public class ThenGSpec extends BaseGSpec {
         }
     }
 
+    /**
+     * Check if a cookie exists
+     *
+     * @param cookieName string with the name of the cookie
+     */
+    @Then("^The cookie name '(.+?)' exists in the cookies saved$")
+    public void checkIfCookieExists(String cookieName){
+        Assertions.assertThat(commonspec.cookieExists(cookieName)).isEqualTo(true);
+
+    }
+
+    @Then("^I have '(.+?)' selenium cookies saved$")
+    public void getSeleniumCookiesSize(int numberOfCookies) throws Exception {
+        Assertions.assertThat(commonspec.getCookies().size()).isEqualTo(numberOfCookies);
+    }
 
     /**
      * Check if expression defined by JSOPath (http://goessner.net/articles/JsonPath/index.html)
