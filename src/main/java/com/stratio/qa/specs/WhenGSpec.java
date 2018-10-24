@@ -126,7 +126,7 @@ public class WhenGSpec extends BaseGSpec {
     /**
      * Double Click on an numbered {@code url} previously found element.
      *
-     * @param index
+     * @param index 
      * @throws InterruptedException
      */
     @When("^I double click on the element on index '(\\d+?)'$")
