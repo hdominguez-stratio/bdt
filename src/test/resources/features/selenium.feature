@@ -25,6 +25,7 @@ Feature: Selenium run test
     When '1' elements exists with 'xpath://*[@id="header"]/div[2]/a/b'
     And I click on the element on index '0'
     When '1' elements exists with 'id:main-panel'
+    Then I wait '3' seconds
     Then the element on index '0' has 'id' as 'main-panel'
     And the element on index '0' has 'User:' as text
     Then '1' elements exists with 'id:j_username'
