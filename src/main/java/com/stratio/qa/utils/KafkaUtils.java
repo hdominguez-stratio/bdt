@@ -250,7 +250,7 @@ public class KafkaUtils {
             }
             writer.close();
         } catch (IOException e) {
-            logger.error("Messages not saved in file", e.getMessage());
+            logger.error("Messages not saved in file " + fileName, e.getMessage());
         }
     }
 
