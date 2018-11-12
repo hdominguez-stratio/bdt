@@ -29,6 +29,5 @@ Feature: Selenium run test
     Then '1' elements exists with 'id:j_username'
     And I clear the content on text input at index '0'
     When '1' elements exists with 'id:remember_me'
-    And the element on index '0' IS NOT selected
     Then I click on the element on index '0'
     And this text exists 'Jenkins'
