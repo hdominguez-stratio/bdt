@@ -16,7 +16,7 @@ Feature: Kafka steps test
     Then A kafka topic named 'admin/delete_topics/testqa' exists
     Then A kafka topic named 'nonExistantTopic' does not exist
 
-  Scenario: Check topic length
+  Scenario: Check kafka topic length and content
     Given I send a message 'hello' to the kafka topic named 'testlength'
     Then The kafka topic 'testlength' has '1' messages
     Then The kafka topic 'testlength' has a message that contains 'el'
