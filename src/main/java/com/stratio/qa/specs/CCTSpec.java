@@ -58,7 +58,7 @@ public class CCTSpec extends BaseGSpec {
      * @param expectedStatus Expected status (healthy|unhealthy|running|stopped)
      * @throws Exception
      */
-    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check in CCT that the service '(.+?)'( with '(\\d+)' tasks of type '(.+?)')? is in '(healthy|unhealthy|running|stopped)' status")
+    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check in CCT that the service '(.+?)'( with '(\\d+)' tasks of type '(.+?)')? is in '(healthy|unhealthy|running|stopped|task_running|task_killed)' status")
     public void checkServiceStatus(Integer timeout, Integer wait, String service, Integer numTasks, String taskType, String expectedStatus) throws Exception {
         String endPoint = "/service/deploy-api/deployments/service?instanceName=" + service;
         boolean useMarathonServices = false;
@@ -95,10 +95,14 @@ public class CCTSpec extends BaseGSpec {
         JSONObject cctJsonResponse = new JSONObject(response);
         JSONArray arrayOfTasks = (JSONArray) cctJsonResponse.get("tasks");
         int task_counter = 0;
+        String key = "state";
+        if(arrayOfTasks.getJSONObject(0).toString().contains("status")) {
+            key = "status";
+        }
         if (arrayOfTasks.length() == 1 || tasks == null){
-            boolean res= arrayOfTasks.getJSONObject(0).getString("status").equalsIgnoreCase(expectedStatus);
+            boolean res= (arrayOfTasks.getJSONObject(0).getString(key).equalsIgnoreCase(expectedStatus));
             if(!res){
-                commonspec.getLogger().warn("The status of " + arrayOfTasks.getJSONObject(0).getString("name") + "is " + arrayOfTasks.getJSONObject(0).getString("status"));
+                commonspec.getLogger().warn("The status of " + arrayOfTasks.getJSONObject(0).getString("name") + "is " + arrayOfTasks.getJSONObject(0).getString(key));
                 commonspec.getLogger().warn("Status of " + arrayOfTasks.getJSONObject(0).getString("name") + "expected " + expectedStatus);
             }
             return res;
@@ -108,8 +112,8 @@ public class CCTSpec extends BaseGSpec {
             JSONObject task = arrayOfTasks.getJSONObject(i);
             if (task.getString("name").matches(regex_name)) {
                 task_counter++;
-                if (!task.getString("status").equalsIgnoreCase(expectedStatus)) {
-                    commonspec.getLogger().warn("The status of " + task.getString("name") + "is " + task.getString("status"));
+                if (!task.getString(key).equalsIgnoreCase(expectedStatus)) {
+                    commonspec.getLogger().warn("The status of " + task.getString("name") + "is " + task.getString(key));
                     commonspec.getLogger().warn("Status of " + task.getString("name") + "expected " + expectedStatus);
                     return false;
                 }
