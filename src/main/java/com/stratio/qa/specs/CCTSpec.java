@@ -95,7 +95,6 @@ public class CCTSpec extends BaseGSpec {
         JSONObject cctJsonResponse = new JSONObject(response);
         JSONArray arrayOfTasks = (JSONArray) cctJsonResponse.get("tasks");
         int task_counter = 0;
-        String regex_name = ".[" + name + "]*";
         if (arrayOfTasks.length() == 1 || tasks == null){
             boolean res= arrayOfTasks.getJSONObject(0).getString("status").equalsIgnoreCase(expectedStatus);
             if(!res){
@@ -104,6 +103,7 @@ public class CCTSpec extends BaseGSpec {
             }
             return res;
         }
+        String regex_name = ".[" + name + "]*";
         for (int i = 0; i < arrayOfTasks.length(); i++) {
             JSONObject task = arrayOfTasks.getJSONObject(i);
             if (task.getString("name").matches(regex_name)) {
