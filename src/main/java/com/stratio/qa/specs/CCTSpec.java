@@ -96,7 +96,7 @@ public class CCTSpec extends BaseGSpec {
         JSONArray arrayOfTasks = (JSONArray) cctJsonResponse.get("tasks");
         int task_counter = 0;
         String regex_name = ".[" + name + "]*";
-        if (arrayOfTasks.length() == 1){
+        if (arrayOfTasks.length() == 1 || tasks == null){
             boolean res= arrayOfTasks.getJSONObject(0).getString("status").equalsIgnoreCase(expectedStatus);
             if(!res){
                 commonspec.getLogger().warn("The status of " + arrayOfTasks.getJSONObject(0).getString("name") + "is " + arrayOfTasks.getJSONObject(0).getString("status"));
