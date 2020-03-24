@@ -48,8 +48,17 @@ public class CCTSpec extends BaseGSpec {
         this.commonspec = spec;
     }
 
-
-    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check in CCT that the service '(.+?)'(with '(\\d+)' tasks of type (.+?)) is in '(healthy|unhealthy|running|stopped)' status")
+    /**
+     * Checks in Command Center service status
+     * @param timeout
+     * @param wait
+     * @param service
+     * @param numTasks
+     * @param taskType
+     * @param expectedStatus Expected status (healthy|unhealthy|running|stopped)
+     * @throws Exception
+     */
+    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check in CCT that the service '(.+?)' with '(\\d+)' tasks of type '(.+?)' is in '(healthy|unhealthy|running|stopped)' status")
     public void checkServiceStatus(Integer timeout, Integer wait, String service, Integer numTasks, String taskType, String expectedStatus) throws Exception {
         String endPoint = "/service/deploy-api/deployments/service?instanceName=" + service;
         boolean useMarathonServices = false;
@@ -75,6 +84,14 @@ public class CCTSpec extends BaseGSpec {
         }
     }
 
+    /**
+     * Check status of a task in response of the CCT
+     * @param expectedStatus
+     * @param response
+     * @param tasks
+     * @param name
+     * @return
+     */
     public boolean checkServiceStatusInResponse(String expectedStatus, String response, Integer tasks, String name) {
         JSONObject cctJsonResponse = new JSONObject(response);
         JSONArray arrayOfTasks = (JSONArray) cctJsonResponse.get("tasks");
