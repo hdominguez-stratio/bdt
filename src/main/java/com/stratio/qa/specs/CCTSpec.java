@@ -58,7 +58,7 @@ public class CCTSpec extends BaseGSpec {
      * @param expectedStatus Expected status (healthy|unhealthy|running|stopped)
      * @throws Exception
      */
-    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check in CCT that the service '(.+?)'[ with '(\\d+)' tasks of type '(.+?)')? is in '(healthy|unhealthy|running|stopped)' status")
+    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check in CCT that the service '(.+?)'( with '(\\d+)' tasks of type '(.+?)')? is in '(healthy|unhealthy|running|stopped)' status")
     public void checkServiceStatus(Integer timeout, Integer wait, String service, Integer numTasks, String taskType, String expectedStatus) throws Exception {
         String endPoint = "/service/deploy-api/deployments/service?instanceName=" + service;
         boolean useMarathonServices = false;
