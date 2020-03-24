@@ -48,6 +48,56 @@ public class CCTSpec extends BaseGSpec {
         this.commonspec = spec;
     }
 
+
+    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check in CCT that the service '(.+?)'(with '(\\d+)' tasks of type (.+?)) is in '(healthy|unhealthy|running|stopped)' status")
+    public void checkServiceStatus(Integer timeout, Integer wait, String service, Integer numTasks, String taskType, String expectedStatus) throws Exception {
+        String endPoint = "/service/deploy-api/deployments/service?instanceName=" + service;
+        boolean useMarathonServices = false;
+        if (ThreadProperty.get("cct-marathon-services_id") != null) {
+            endPoint = "/service/cct-marathon-services/v1/services/" + service;
+            useMarathonServices = true;
+        }
+        boolean  statusService = false;
+        for (int i = 0; (i <= timeout) && (statusService == false); i += wait) {
+            try {
+                Future<Response> response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null);
+                commonspec.setResponse(endPoint, response.get());
+                statusService = checkServiceStatusInResponse(expectedStatus, commonspec.getResponse().getResponse(), numTasks, taskType);
+            } catch (Exception e) {
+                commonspec.getLogger().debug("Error in request " + endPoint + " - " + e.toString());
+            }
+            if (i < timeout) {
+                Thread.sleep(wait * 1000);
+            }
+        }
+        if (!statusService) {
+            fail(expectedStatus + " status not found after " + timeout + " seconds for service " + service);
+        }
+    }
+
+    public boolean checkServiceStatusInResponse(String expectedStatus, String response, Integer tasks, String name) {
+        JSONObject cctJsonResponse = new JSONObject(response);
+        JSONArray arrayOfTasks = (JSONArray) cctJsonResponse.get("tasks");
+        int task_counter = 0;
+        String regex_name = ".[" + name + "]*";
+        for (int i = 0; i < arrayOfTasks.length(); i++) {
+            JSONObject task = arrayOfTasks.getJSONObject(i);
+            if (task.getString("name").matches(regex_name)) {
+                task_counter++;
+                if (!task.getString("status").equalsIgnoreCase(expectedStatus)) {
+                    commonspec.getLogger().warn("The status of " + task.getString("name") + "is " + task.getString("status"));
+                    commonspec.getLogger().warn("Status of " + task.getString("name") + "expected " + expectedStatus);
+                    return false;
+                }
+            }
+        }
+        if (task_counter == tasks) {
+            return true;
+        }
+        commonspec.getLogger().error("The number of task deployed are not be the expected tasks");
+        return false;
+    }
+
     /**
      * Checks in Command Center service status
      *
@@ -58,6 +108,7 @@ public class CCTSpec extends BaseGSpec {
      * @param expectedStatus Expected status (healthy|unhealthy|running|stopped)
      * @throws Exception
      */
+    @Deprecated
     @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check in CCT that the service '(.+?)'( with number of tasks '(\\d+)')? is in '(healthy|unhealthy|running|stopped)' status$")
     public void checkServiceStatus(Integer timeout, Integer wait, String service, Integer numTasks, String expectedStatus) throws Exception {
         String endPoint = "/service/deploy-api/deployments/service?instanceName=" + service;
@@ -66,7 +117,6 @@ public class CCTSpec extends BaseGSpec {
             endPoint = "/service/cct-marathon-services/v1/services/" + service;
             useMarathonServices = true;
         }
-
         boolean found = false;
         boolean isDeployed = false;
 
@@ -110,6 +160,7 @@ public class CCTSpec extends BaseGSpec {
      * @param useMarathonServices True if cct-marathon-services is used in request, False if deploy-api is used in request
      * @return If service status has the expected status
      */
+    @Deprecated
     private boolean checkServiceStatusInResponse(String expectedStatus, String response, boolean useMarathonServices) {
         if (useMarathonServices) {
             JSONObject cctJsonResponse = new JSONObject(response);
