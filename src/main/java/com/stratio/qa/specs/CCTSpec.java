@@ -94,9 +94,9 @@ public class CCTSpec extends BaseGSpec {
         JSONObject cctJsonResponse = new JSONObject(response);
         JSONArray arrayOfTasks = (JSONArray) cctJsonResponse.get("tasks");
         int task_counter = 0;
-        String key = "state";
-        if (arrayOfTasks.getJSONObject(0).toString().contains("status")) {
-            key = "status";
+        String key = "status";
+        if (arrayOfTasks.getJSONObject(0).toString().contains("state")) {
+            key = "state";
             switch (expectedStatus.toLowerCase()) {
                 case "running":
                 case "healthy":
