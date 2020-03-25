@@ -58,7 +58,7 @@ public class CCTSpec extends BaseGSpec {
      * @param expectedStatus Expected status (healthy|unhealthy|running|stopped)
      * @throws Exception
      */
-    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check that the service '(.+?)' in CCT( with '(\\d+)' tasks of type '(.+?)')? is in '(healthy|unhealthy|running|stopped)' status")
+    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check that the service '(.+?)' in CCT with '(\\d+)' tasks of type '(.+?)' is in '(healthy|unhealthy|running|stopped)' status")
     public void checkServiceStatus(Integer timeout, Integer wait, String service, Integer numTasks, String taskType, String expectedStatus) throws Exception {
         String endPoint = "/service/deploy-api/deployments/service?instanceName=" + service;
         if (ThreadProperty.get("cct-marathon-services_id") != null) {
@@ -147,7 +147,6 @@ public class CCTSpec extends BaseGSpec {
      * @param expectedStatus Expected status (healthy|unhealthy|running|stopped)
      * @throws Exception
      */
-    @Deprecated
     @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check in CCT that the service '(.+?)'( with number of tasks '(\\d+)')? is in '(healthy|unhealthy|running|stopped)' status$")
     public void checkServiceStatus(Integer timeout, Integer wait, String service, Integer numTasks, String expectedStatus) throws Exception {
         String endPoint = "/service/deploy-api/deployments/service?instanceName=" + service;
@@ -199,7 +198,6 @@ public class CCTSpec extends BaseGSpec {
      * @param useMarathonServices True if cct-marathon-services is used in request, False if deploy-api is used in request
      * @return If service status has the expected status
      */
-    @Deprecated
     private boolean checkServiceStatusInResponse(String expectedStatus, String response, boolean useMarathonServices) {
         if (useMarathonServices) {
             JSONObject cctJsonResponse = new JSONObject(response);
