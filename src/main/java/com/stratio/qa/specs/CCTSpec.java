@@ -113,8 +113,8 @@ public class CCTSpec extends BaseGSpec {
         if (arrayOfTasks.length() == 1 || tasks == null) {
             boolean res = (arrayOfTasks.getJSONObject(0).getString(key).equalsIgnoreCase(expectedStatus));
             if (!res) {
-                commonspec.getLogger().warn("The status of " + arrayOfTasks.getJSONObject(0).getString("name") + "is " + arrayOfTasks.getJSONObject(0).getString(key));
-                commonspec.getLogger().warn("Status of " + arrayOfTasks.getJSONObject(0).getString("name") + "expected " + expectedStatus);
+                commonspec.getLogger().warn("The status of " + arrayOfTasks.getJSONObject(0).getString("name") + " is " + arrayOfTasks.getJSONObject(0).getString(key));
+                commonspec.getLogger().warn("Status of " + arrayOfTasks.getJSONObject(0).getString("name") + " expected " + expectedStatus);
             }
             return res;
         }
