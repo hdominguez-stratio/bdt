@@ -58,7 +58,7 @@ public class CCTSpec extends BaseGSpec {
      * @param expectedStatus Expected status (healthy|unhealthy|running|stopped)
      * @throws Exception
      */
-    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check in CCT that the service '(.+?)'( with '(\\d+)' tasks of type '(.+?)')? is in '(healthy|unhealthy|running|stopped|task_running|task_killed)' status")
+    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check that the service '(.+?)' in CCT( with '(\\d+)' tasks of type '(.+?)')? is in '(healthy|unhealthy|running|stopped)' status")
     public void checkServiceStatus(Integer timeout, Integer wait, String service, Integer numTasks, String taskType, String expectedStatus) throws Exception {
         String endPoint = "/service/deploy-api/deployments/service?instanceName=" + service;
         if (ThreadProperty.get("cct-marathon-services_id") != null) {
@@ -97,6 +97,18 @@ public class CCTSpec extends BaseGSpec {
         String key = "state";
         if (arrayOfTasks.getJSONObject(0).toString().contains("status")) {
             key = "status";
+            switch (expectedStatus.toLowerCase()) {
+                case "running":
+                case "healthy":
+                    expectedStatus = "TASK_RUNNING";
+                    break;
+                case "stopped":
+                case "unhealthy":
+                    expectedStatus = "TASK_KILLED";
+                    break;
+                default:
+                    return false;
+            }
         }
         if (arrayOfTasks.length() == 1 || tasks == null) {
             boolean res = (arrayOfTasks.getJSONObject(0).getString(key).equalsIgnoreCase(expectedStatus));
