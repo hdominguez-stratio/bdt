@@ -65,7 +65,7 @@ public class CCTSpec extends BaseGSpec {
             endPoint = "/service/cct-marathon-services/v1/services/" + service;
         }
         boolean  statusService = false;
-        for (int i = 0; (i <= timeout) && (statusService == false); i += wait) {
+        for (int i = 0; (i <= timeout) && (!statusService); i += wait) {
             try {
                 Future<Response> response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null);
                 commonspec.setResponse(endPoint, response.get());
