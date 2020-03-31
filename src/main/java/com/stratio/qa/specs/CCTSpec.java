@@ -64,9 +64,10 @@ public class CCTSpec extends BaseGSpec {
         commonspec.setResponse("DELETE", response.get());
         if (commonspec.getResponse().getStatusCode() != 200 || commonspec.getResponse().getStatusCode() != 201) {
             throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
-        }
+        }git stat
     }
-    /**      
+
+    /**
      * Scale service from deploy-api
      * @param service
      * @param instances
