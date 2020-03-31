@@ -54,7 +54,7 @@ public class CCTSpec extends BaseGSpec {
      * @throws Exception
      */
     @Given("^I teardown the service '(.+?)' of tenant '(.+?)'")
-    public void tearDownService(String service,String tenant) throws Exception {
+    public void tearDownService(String service, String tenant) throws Exception {
         if (ThreadProperty.get("deploy_api_id") == null) {
             fail("deploy_api_id variable is not set. Check deploy-api is installed and @dcos annotation is working properly.");
         }
