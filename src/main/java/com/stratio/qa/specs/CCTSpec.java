@@ -56,7 +56,7 @@ public class CCTSpec extends BaseGSpec {
     @Given("^I teardown the service '(.+?)'")
     public void tearDownService(String service) throws Exception {
         if (ThreadProperty.get("deploy_api_id") == null) {
-            fail("You must set deploy_api_id because it is not set");
+            fail("deploy_api_id variable is not set. Check deploy-api is installed and @dcos annotation is working properly.");
         }
         String endPoint = "/service/" + ThreadProperty.get("deploy_api_id") + "/deploy/teardown?frameworkName=" + service;
         Future<Response> response;
