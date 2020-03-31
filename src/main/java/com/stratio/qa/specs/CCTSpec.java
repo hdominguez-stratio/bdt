@@ -54,7 +54,7 @@ public class CCTSpec extends BaseGSpec {
      * @param instances
      * @throws Exception
      */
-    @Given("^I want to scale the service '(.+?)' to '(\\d+)' instances from CCT")
+    @Given("^I scale service '(.+?)' to '(\\d+)' instances")
     public void scaleService(String service, Integer instances) throws Exception {
         if (ThreadProperty.get("deploy_api_id") == null) {
             fail("deploy_api_id variable is not set. Check deploy-api is installed and @dcos annotation is working properly.");
