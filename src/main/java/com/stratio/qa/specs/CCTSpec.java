@@ -49,6 +49,22 @@ public class CCTSpec extends BaseGSpec {
     }
 
     /**
+     * TearDown a service with deploy-api
+     * @param service
+     * @throws Exception
+     */
+    @Given("^I want to teardown the service '(.+?)' from CCT")
+    public void tearDownService(String service) throws Exception {
+        String endPoint = "/service/" + ThreadProperty.get("deploy_api_id") + "/deploy/teardown?frameworkName=" + service;
+        Future<Response> response;
+        response = commonspec.generateRequest("DELETE", false, null, null, endPoint, "", null, "");
+        commonspec.setResponse("DELETE", response.get());
+        if (commonspec.getResponse().getStatusCode() != 200) {
+            throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
+        }
+    }
+
+     /**
      * Checks in Command Center service status
      * @param timeout
      * @param wait
