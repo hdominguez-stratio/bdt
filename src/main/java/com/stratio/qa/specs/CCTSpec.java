@@ -53,9 +53,9 @@ public class CCTSpec extends BaseGSpec {
      * @param service
      * @throws Exception
      */
-    @Given("^I want to teardown the service '(.+?)' from CCT")
+    @Given("^I teardown the service '(.+?)'")
     public void tearDownService(String service) throws Exception {
-        if(ThreadProperty.get("deploy_api_id") == null){
+        if (ThreadProperty.get("deploy_api_id") == null) {
             fail("You must set deploy_api_id because it is not set");
         }
         String endPoint = "/service/" + ThreadProperty.get("deploy_api_id") + "/deploy/teardown?frameworkName=" + service;
