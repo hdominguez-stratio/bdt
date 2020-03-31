@@ -56,6 +56,9 @@ public class CCTSpec extends BaseGSpec {
      */
     @Given("^I want to scale the service '(.+?)' to '(\\d+)' instances from CCT")
     public void scaleService(String service, Integer instances) throws Exception {
+        if(ThreadProperty.get("deploy_api_id") == null){
+            fail("You must set deploy_api_id because it is not set");
+        }
         String endPoint = "/service/" + ThreadProperty.get("deploy_api_id") + "/deploy/scale?instances=" + instances + "&serviceName=" + service;
         Future<Response> response;
         response = commonspec.generateRequest("PUT", false, null, null, endPoint, "", null, "");
