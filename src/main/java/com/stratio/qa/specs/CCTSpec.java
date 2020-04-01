@@ -26,6 +26,7 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 
@@ -47,6 +48,92 @@ public class CCTSpec extends BaseGSpec {
     public CCTSpec(CommonG spec) {
         this.commonspec = spec;
     }
+
+    @Given("^The '(stdout|stderr)' of service '(.+?)' with task type '(.+?)' contains '(.+?)' in the last '(\\d+)' lines")
+    public void readLogsFromService(String logType, String service, String taskType, String logToCheck, Integer lastLinesToRead) throws Exception {
+        if (ThreadProperty.get("cct-marathon-services_id") == null) {
+            fail("cct-marathon-services_id variable is not set. Check deploy-api is installed and @dcos annotation is working properly.");
+        }
+        String endPoint = "/service/cct-marathon-services/v1/services/" + service;
+        Future<Response> response = null;
+        response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null);
+        if (response.get().getStatusCode() != 200) {
+            throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
+        }
+        commonspec.setResponse(endPoint, response.get());
+        ArrayList<String> mesosTaskId = obtainMesosTaskInfo(commonspec.getResponse().getResponse(), taskType, "id");
+        boolean contained = false;
+        for (int i = 0; i < mesosTaskId.size() || !contained; i++) {
+            String endpointTask = endPoint + "/tasks/" + mesosTaskId.get(0) + "/logs";
+            response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null);
+            if (response.get().getStatusCode() != 200) {
+                throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
+            }
+            commonspec.setResponse("GET", response.get());
+            String path = obtainLogsPath(commonspec.getResponse().getResponse(), logType, "READ") + "/" +  logType;
+            String logOfTask = readLogsFromMesos(path, lastLinesToRead);
+            if (logOfTask.contains(logToCheck)) {
+                contained = true;
+            }
+        }
+        if (!contained) {
+            fail("The log " + logToCheck + "is not contaided in the task logs");
+        }
+    }
+
+    public String readLogsFromMesos(String path, Integer lastLines) throws Exception {
+        //obtain last offset
+        Future<Response> response = null;
+        response = commonspec.generateRequest("GET", false, null, null, path, "", null);
+        if (response.get().getStatusCode() != 200) {
+            throw new Exception("Request failed to endpoint: " + path + " with status code: " + commonspec.getResponse().getStatusCode());
+        }
+        Integer offSet = ((JSONObject) response.get()).getInt("offset");
+        //Read 1000 bytes
+        String logs = "";
+        Integer lineCount = 0;
+        for (int i = offSet; (i <= 0) || (lineCount > lastLines); i = i - 1000) {
+            String endPoint = path + "&offset=" + (i - 1000) + "&length=" + i;
+            response = commonspec.generateRequest("GET", false, null, null, path, "", null);
+            if (response.get().getStatusCode() != 200) {
+                throw new Exception("Request failed to endpoint: " + path + " with status code: " + commonspec.getResponse().getStatusCode());
+            }
+            commonspec.setResponse("GET", response.get());
+            logs = commonspec.getResponse().getResponse() + logs;
+            lineCount = logs.split("\n").length;
+        }
+        return logs;
+    }
+
+    public String obtainLogsPath(String response, String logType, String action) {
+        String path = null;
+        JSONObject cctJsonResponse = new JSONObject(response);
+        JSONArray arrayOfPaths = (JSONArray) cctJsonResponse.get("content");
+        for (int i = 0; i < arrayOfPaths.length(); i++) {
+            if (arrayOfPaths.getJSONObject(i).getString("name").equalsIgnoreCase(logType) && arrayOfPaths.getJSONObject(i).getString("action").equalsIgnoreCase(action)) {
+                path = arrayOfPaths.getJSONObject(i).getString("path");
+            }
+        }
+        return path;
+    }
+
+    public ArrayList<String> obtainMesosTaskInfo (String response, String taskType, String info) {
+        ArrayList<String> result = new ArrayList<String>();
+        JSONObject cctJsonResponse = new JSONObject(response);
+        JSONArray arrayOfTasks = (JSONArray) cctJsonResponse.get("tasks");
+        if (arrayOfTasks.length() == 1 || taskType == null) {
+            result.add((arrayOfTasks.getJSONObject(0).getString(info)));
+        }
+        String regex_name = ".[" + taskType + "]*";
+        for (int i = 0; i < arrayOfTasks.length(); i++) {
+            JSONObject task = arrayOfTasks.getJSONObject(i);
+            if (task.getString("name").matches(regex_name)) {
+                result.add((task.getString(info)));
+            }
+        }
+        return result;
+    }
+
 
     /**
      * TearDown a service with deploy-api
