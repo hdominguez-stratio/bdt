@@ -27,6 +27,7 @@ import org.json.JSONObject;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 
@@ -49,28 +50,44 @@ public class CCTSpec extends BaseGSpec {
         this.commonspec = spec;
     }
 
-    @Given("^The '(stdout|stderr)' of service '(.+?)' with task type '(.+?)' contains '(.+?)' in the last '(\\d+)' lines")
+    /**
+     * Read last lines from logs of a service/framework
+     * @param logType
+     * @param service
+     * @param taskType
+     * @param logToCheck
+     * @param lastLinesToRead
+     * @throws Exception
+     */
+    @Given("^The '(stdout|stderr)' of service '(.+?)'( with task type '(.+?)')? contains '(.+?)' in the last '(\\d+)' lines$")
     public void readLogsFromService(String logType, String service, String taskType, String logToCheck, Integer lastLinesToRead) throws Exception {
+        commonspec.getLogger().debug("Start process of read " + lastLinesToRead + " from the mesos log");
         if (ThreadProperty.get("cct-marathon-services_id") == null) {
             fail("cct-marathon-services_id variable is not set. Check deploy-api is installed and @dcos annotation is working properly.");
         }
         String endPoint = "/service/cct-marathon-services/v1/services/" + service;
         Future<Response> response = null;
+        commonspec.getLogger().debug("Trying to send http request to: " + endPoint);
         response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null);
         if (response.get().getStatusCode() != 200) {
             throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
         }
         commonspec.setResponse(endPoint, response.get());
         ArrayList<String> mesosTaskId = obtainMesosTaskInfo(commonspec.getResponse().getResponse(), taskType, "id");
+        commonspec.getLogger().info("Mesos Task Ids obtained successfully");
+        commonspec.getLogger().debug("Mesos task ids: "  + Arrays.toString(mesosTaskId.toArray()));
         boolean contained = false;
         for (int i = 0; i < mesosTaskId.size() || !contained; i++) {
             String endpointTask = endPoint + "/tasks/" + mesosTaskId.get(0) + "/logs";
+            commonspec.getLogger().debug("Trying to send http request to: " + endpointTask);
             response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null);
             if (response.get().getStatusCode() != 200) {
                 throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
             }
             commonspec.setResponse("GET", response.get());
+            commonspec.getLogger().debug("Trying to obtain mesos logs path");
             String path = obtainLogsPath(commonspec.getResponse().getResponse(), logType, "READ") + "/" +  logType;
+            commonspec.getLogger().debug("Trying to read mesos logs");
             String logOfTask = readLogsFromMesos(path, lastLinesToRead);
             if (logOfTask.contains(logToCheck)) {
                 contained = true;
@@ -81,6 +98,13 @@ public class CCTSpec extends BaseGSpec {
         }
     }
 
+    /**
+     * Read log from mesos
+     * @param path
+     * @param lastLines
+     * @return
+     * @throws Exception
+     */
     public String readLogsFromMesos(String path, Integer lastLines) throws Exception {
         //obtain last offset
         Future<Response> response = null;
@@ -105,6 +129,13 @@ public class CCTSpec extends BaseGSpec {
         return logs;
     }
 
+    /**
+     * Obtain logs path from JSON
+     * @param response
+     * @param logType
+     * @param action
+     * @return path
+     */
     public String obtainLogsPath(String response, String logType, String action) {
         String path = null;
         JSONObject cctJsonResponse = new JSONObject(response);
@@ -117,6 +148,13 @@ public class CCTSpec extends BaseGSpec {
         return path;
     }
 
+    /**
+     * Obtain info about task type from json
+     * @param response
+     * @param taskType
+     * @param info
+     * @return
+     */
     public ArrayList<String> obtainMesosTaskInfo (String response, String taskType, String info) {
         ArrayList<String> result = new ArrayList<String>();
         JSONObject cctJsonResponse = new JSONObject(response);
