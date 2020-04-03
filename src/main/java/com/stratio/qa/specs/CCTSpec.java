@@ -26,6 +26,8 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.Future;
@@ -51,6 +53,57 @@ public class CCTSpec extends BaseGSpec {
     }
 
     /**
+     * Download last lines from logs of a service/framework
+     * @param logType
+     * @param service
+     * @param taskType
+     * @throws Exception
+     */
+    @Given("^I want to download '(stdout|stderr)' last '(\\d+)' lines of service '(.+?)'( with task type '(.+?)')?")
+    public void downLoadLogsFromService(String logType, Integer lastLinesToRead, String service, String taskType) throws Exception {
+        String fileOutputName = service.replace('/', '_')+taskType + logType;
+        if (ThreadProperty.get("cct-marathon-services_id") == null) {
+            fail("cct-marathon-services_id variable is not set. Check deploy-api is installed and @dcos annotation is working properly.");
+        }
+        String endPoint = "/service/cct-marathon-services/v1/services/" + service;
+        Future<Response> response = null;
+        commonspec.getLogger().debug("Trying to send http request to: " + endPoint);
+        response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null);
+        if (response.get().getStatusCode() != 200) {
+            throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
+        }
+        commonspec.setResponse(endPoint, response.get());
+        ArrayList<String> mesosTaskId = obtainMesosTaskInfo(commonspec.getResponse().getResponse(), null, "id");
+        ArrayList<String> mesosTaskName = obtainMesosTaskInfo(commonspec.getResponse().getResponse(), null, "name");
+        boolean contained = false;
+        if (mesosTaskId.size() > 1) {
+            for (int i = 0; i < mesosTaskName.size() && !contained; i++) {
+                if (mesosTaskName.get(i).contains(taskType)) {
+                    contained = true;
+                    taskType = mesosTaskId.get(i);
+                }
+            }
+        } else {
+            contained = true;
+            taskType = mesosTaskId.get(0);
+        }
+        if (!contained) {
+            fail("The mesos task type does not exists");
+        }
+        String endpointTask = "/service/cct-marathon-services/v1/services/tasks/" + taskType + "/logs";
+        commonspec.getLogger().debug("Trying to send http request to: " + endpointTask);
+        response = commonspec.generateRequest("GET", false, null, null, endpointTask, "", null);
+        if (response.get().getStatusCode() != 200) {
+            throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
+        }
+        commonspec.setResponse("GET", response.get());
+        commonspec.getLogger().debug("Trying to obtain mesos logs path");
+        String path = obtainLogsPath(commonspec.getResponse().getResponse(), logType, "READ") + "/" +  logType;
+        String logOfTask = readLogsFromMesos(path, lastLinesToRead);
+        Files.write(Paths.get(System.getProperty("user.dir") + "/target/test-classes/" + fileOutputName), logOfTask.getBytes());
+    }
+
+     /**
      * Read last lines from logs of a service/framework
      * @param logType
      * @param service
@@ -77,10 +130,10 @@ public class CCTSpec extends BaseGSpec {
         commonspec.getLogger().info("Mesos Task Ids obtained successfully");
         commonspec.getLogger().debug("Mesos task ids: "  + Arrays.toString(mesosTaskId.toArray()));
         boolean contained = false;
-        for (int i = 0; i < mesosTaskId.size() || !contained; i++) {
-            String endpointTask = endPoint + "/tasks/" + mesosTaskId.get(0) + "/logs";
+        for (int i = 0; i < mesosTaskId.size() && !contained; i++) {
+            String endpointTask = "/service/cct-marathon-services/v1/services/tasks/" + mesosTaskId.get(i) + "/logs";
             commonspec.getLogger().debug("Trying to send http request to: " + endpointTask);
-            response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null);
+            response = commonspec.generateRequest("GET", false, null, null, endpointTask, "", null);
             if (response.get().getStatusCode() != 200) {
                 throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
             }
@@ -94,7 +147,7 @@ public class CCTSpec extends BaseGSpec {
             }
         }
         if (!contained) {
-            fail("The log " + logToCheck + "is not contaided in the task logs");
+            fail("The log " + logToCheck + " is not contaided in the task logs");
         }
     }
 
@@ -112,19 +165,26 @@ public class CCTSpec extends BaseGSpec {
         if (response.get().getStatusCode() != 200) {
             throw new Exception("Request failed to endpoint: " + path + " with status code: " + commonspec.getResponse().getStatusCode());
         }
-        Integer offSet = ((JSONObject) response.get()).getInt("offset");
+        JSONObject offSetJson = new JSONObject(response.get().getResponseBody());
+
+        Integer offSet = offSetJson.getInt("offset");
         //Read 1000 bytes
         String logs = "";
         Integer lineCount = 0;
-        for (int i = offSet; (i <= 0) || (lineCount > lastLines); i = i - 1000) {
+        for (int i = offSet; (i >= 0) && (lineCount <= lastLines); i = i - 1000) {
             String endPoint = path + "&offset=" + (i - 1000) + "&length=" + i;
-            response = commonspec.generateRequest("GET", false, null, null, path, "", null);
+            if(i<1000){
+                endPoint = path + "&offset=0&length=" + i;
+
+            }
+            response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null);
             if (response.get().getStatusCode() != 200) {
                 throw new Exception("Request failed to endpoint: " + path + " with status code: " + commonspec.getResponse().getStatusCode());
             }
             commonspec.setResponse("GET", response.get());
-            logs = commonspec.getResponse().getResponse() + logs;
-            lineCount = logs.split("\n").length;
+            JSONObject cctJsonResponse = new JSONObject(commonspec.getResponse().getResponse());
+            logs = cctJsonResponse.getString("data") + logs;
+            lineCount = logs.split("\n").length + lineCount;
         }
         return logs;
     }
@@ -162,7 +222,10 @@ public class CCTSpec extends BaseGSpec {
         if (arrayOfTasks.length() == 1 || taskType == null) {
             result.add((arrayOfTasks.getJSONObject(0).getString(info)));
         }
-        String regex_name = ".[" + taskType + "]*";
+        String regex_name = ".*";
+        if (taskType != null) {
+            regex_name = ".[" + taskType + "]*";
+        }
         for (int i = 0; i < arrayOfTasks.length(); i++) {
             JSONObject task = arrayOfTasks.getJSONObject(i);
             if (task.getString("name").matches(regex_name)) {
