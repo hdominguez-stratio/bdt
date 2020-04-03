@@ -61,7 +61,7 @@ public class CCTSpec extends BaseGSpec {
      */
     @Given("^I want to download '(stdout|stderr)' last '(\\d+)' lines of service '(.+?)'( with task type '(.+?)')?")
     public void downLoadLogsFromService(String logType, Integer lastLinesToRead, String service, String taskType) throws Exception {
-        String fileOutputName = service.replace('/', '_')+taskType + logType;
+        String fileOutputName = service.replace('/', '_') + taskType + logType;
         if (ThreadProperty.get("cct-marathon-services_id") == null) {
             fail("cct-marathon-services_id variable is not set. Check deploy-api is installed and @dcos annotation is working properly.");
         }
@@ -173,7 +173,7 @@ public class CCTSpec extends BaseGSpec {
         Integer lineCount = 0;
         for (int i = offSet; (i >= 0) && (lineCount <= lastLines); i = i - 1000) {
             String endPoint = path + "&offset=" + (i - 1000) + "&length=" + i;
-            if(i<1000){
+            if (i < 1000) {
                 endPoint = path + "&offset=0&length=" + i;
 
             }
