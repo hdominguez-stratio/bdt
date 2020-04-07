@@ -146,7 +146,8 @@ public class CCTSpec extends BaseGSpec {
                 endpointTask = "/service/" + ThreadProperty.get("deploy_api_id") + "/deployments/logs/" + taskType;
             } else {
                 endpointTask = "/service/cct-marathon-services/v1/services/tasks/" + taskType + "/logs";
-            }            commonspec.getLogger().debug("Trying to send http request to: " + endpointTask);
+            }
+            commonspec.getLogger().debug("Trying to send http request to: " + endpointTask);
             response = commonspec.generateRequest("GET", false, null, null, endpointTask, "", null);
             if (response.get().getStatusCode() != 200) {
                 throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
