@@ -62,10 +62,12 @@ public class CCTSpec extends BaseGSpec {
     @Given("^I want to download '(stdout|stderr)' last '(\\d+)' lines of service '(.+?)'( with task type '(.+?)')?")
     public void downLoadLogsFromService(String logType, Integer lastLinesToRead, String service, String taskType) throws Exception {
         String fileOutputName = service.replace('/', '_') + taskType + logType;
+        String endPoint;
         if (ThreadProperty.get("cct-marathon-services_id") == null) {
-            fail("cct-marathon-services_id variable is not set. Check deploy-api is installed and @dcos annotation is working properly.");
+            endPoint = "/service/" + ThreadProperty.get("deploy_api_id") + " /deployments/service?instanceName=" + service;
+        } else {
+            endPoint = "/service/cct-marathon-services/v1/services/" + service;
         }
-        String endPoint = "/service/cct-marathon-services/v1/services/" + service;
         Future<Response> response = null;
         commonspec.getLogger().debug("Trying to send http request to: " + endPoint);
         response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null);
@@ -90,7 +92,13 @@ public class CCTSpec extends BaseGSpec {
         if (!contained) {
             fail("The mesos task type does not exists");
         }
-        String endpointTask = "/service/cct-marathon-services/v1/services/tasks/" + taskType + "/logs";
+
+        String endpointTask;
+        if (ThreadProperty.get("cct-marathon-services_id") == null) {
+            endpointTask = "/service/" + ThreadProperty.get("deploy_api_id") + "/deployments/logs/" + taskType;
+        } else {
+            endpointTask = "/service/cct-marathon-services/v1/services/tasks/" + taskType + "/logs";
+        }
         commonspec.getLogger().debug("Trying to send http request to: " + endpointTask);
         response = commonspec.generateRequest("GET", false, null, null, endpointTask, "", null);
         if (response.get().getStatusCode() != 200) {
@@ -115,10 +123,12 @@ public class CCTSpec extends BaseGSpec {
     @Given("^The '(stdout|stderr)' of service '(.+?)'( with task type '(.+?)')? contains '(.+?)' in the last '(\\d+)' lines$")
     public void readLogsFromService(String logType, String service, String taskType, String logToCheck, Integer lastLinesToRead) throws Exception {
         commonspec.getLogger().debug("Start process of read " + lastLinesToRead + " from the mesos log");
+        String endPoint;
         if (ThreadProperty.get("cct-marathon-services_id") == null) {
-            fail("cct-marathon-services_id variable is not set. Check deploy-api is installed and @dcos annotation is working properly.");
+            endPoint = "/service/" + ThreadProperty.get("deploy_api_id") + " /deployments/service?instanceName=" + service;
+        } else {
+            endPoint = "/service/cct-marathon-services/v1/services/" + service;
         }
-        String endPoint = "/service/cct-marathon-services/v1/services/" + service;
         Future<Response> response = null;
         commonspec.getLogger().debug("Trying to send http request to: " + endPoint);
         response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null);
@@ -131,8 +141,12 @@ public class CCTSpec extends BaseGSpec {
         commonspec.getLogger().debug("Mesos task ids: "  + Arrays.toString(mesosTaskId.toArray()));
         boolean contained = false;
         for (int i = 0; i < mesosTaskId.size() && !contained; i++) {
-            String endpointTask = "/service/cct-marathon-services/v1/services/tasks/" + mesosTaskId.get(i) + "/logs";
-            commonspec.getLogger().debug("Trying to send http request to: " + endpointTask);
+            String endpointTask;
+            if (ThreadProperty.get("cct-marathon-services_id") == null) {
+                endpointTask = "/service/" + ThreadProperty.get("deploy_api_id") + "/deployments/logs/" + taskType;
+            } else {
+                endpointTask = "/service/cct-marathon-services/v1/services/tasks/" + taskType + "/logs";
+            }            commonspec.getLogger().debug("Trying to send http request to: " + endpointTask);
             response = commonspec.generateRequest("GET", false, null, null, endpointTask, "", null);
             if (response.get().getStatusCode() != 200) {
                 throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
