@@ -971,7 +971,8 @@ public class CCTSpec extends BaseGSpec {
         commonspec.setResponse("POST", response.get());
 
         if (commonspec.getResponse().getStatusCode() != 202) {
-            throw new Exception("Request to endpoint: " + endPoint + " failed with status code: " + commonspec.getResponse().getStatusCode());
+            logger.error("Request to endpoint: " + endPoint + " failed with status code: " + commonspec.getResponse().getStatusCode() + " and response: " + commonspec.getResponse().getResponse());
+            throw new Exception("Request to endpoint: " + endPoint + " failed with status code: " + commonspec.getResponse().getStatusCode() + " and response: " + commonspec.getResponse().getResponse());
         }
 
         // Check Application in API
