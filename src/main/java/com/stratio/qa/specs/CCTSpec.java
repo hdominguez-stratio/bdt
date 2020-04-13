@@ -971,8 +971,7 @@ public class CCTSpec extends BaseGSpec {
         commonspec.setResponse("POST", response.get());
 
         if (commonspec.getResponse().getStatusCode() != 202) {
-            logger.error("Request to endpoint: " + endPoint + " failed with status code: " + commonspec.getResponse().getStatusCode() + " and response: " + commonspec.getResponse().getResponse());
-            throw new Exception("Request to endpoint: " + endPoint + " failed with status code: " + commonspec.getResponse().getStatusCode() + " and response: " + commonspec.getResponse().getResponse());
+            throw new Exception("Request to endpoint: " + endPoint + " failed with status code: " + commonspec.getResponse().getStatusCode());
         }
 
         // Check Application in API
@@ -988,7 +987,23 @@ public class CCTSpec extends BaseGSpec {
         String serviceName = "/" + name;
 
         if (!"NONE".equals(tenant)) {
-            serviceName = "/" + tenant + "/" + tenant + "-" + name;
+            switch (service) {
+                case "search-engine":
+                    serviceName = "/" + tenant + "/search-engine/" + tenant + "-" + name;
+                    break;
+                default:
+                    serviceName = "/" + tenant + "/" + tenant + "-" + name;
+                    break;
+            }
+        } else {
+            switch (service) {
+                case "search-engine":
+                    serviceName = "/search-engine/" + name;
+                    break;
+                default:
+                    serviceName = "/" + name;
+                    break;
+            }
         }
 
         restSpec.sendRequestTimeout(200, 20, "GET", endPointStatus, null, serviceName);
