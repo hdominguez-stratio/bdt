@@ -986,6 +986,13 @@ public class CCTSpec extends BaseGSpec {
             endPointStatus = "/service/" + ThreadProperty.get("cct-marathon-services_id") + "/v1/services?tenant=" + tenant;
         }
 
+        if (folder != null && folder.startsWith("/")) {
+            folder = folder.substring(1);
+        }
+        if (folder != null && folder.endsWith("/")) {
+            folder = folder.substring(folder.length() - 1);
+        }
+
         String serviceName = "/" + name;
         if (folder != null) {
             serviceName = "/" + folder + "/" + name;
