@@ -28,6 +28,7 @@ import org.assertj.core.api.Assertions;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -252,7 +253,7 @@ public class CommandExecutionSpec extends BaseGSpec {
      **/
     @Then("^the command output contains '(.+?)'$")
     public void findShellOutput(String search) throws Exception {
-        assertThat(commonspec.getCommandResult()).as("Contains " + search + ".").contains(search);
+        assertThat(URLEncoder.encode(commonspec.getCommandResult(), "utf-8")).as("Contains " + search + ".").contains(search);
     }
 
     /**
