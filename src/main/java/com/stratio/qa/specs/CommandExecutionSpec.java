@@ -253,7 +253,7 @@ public class CommandExecutionSpec extends BaseGSpec {
      **/
     @Then("^the command output contains '(.+?)'$")
     public void findShellOutput(String search) throws Exception {
-        assertThat(URLEncoder.encode(commonspec.getCommandResult(), "utf-8")).as("Contains " + search + ".").contains(search);
+        assertThat(commonspec.getCommandResult()).as("Contains " + search + ".").contains(search);
     }
 
     /**
