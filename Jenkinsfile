@@ -13,7 +13,6 @@ hose {
     BUILDTOOL = 'maven'
     BUILDTOOLVERSION = '3.5.0'
     FORCETICKETONPRS = true
-    DEPLOYONPRS = true
 
     ITSERVICES = [
         ['ZOOKEEPER': [

@@ -51,4 +51,4 @@ Feature: Simple check values test
 
   Scenario: Contains with especial characters
     When I run 'echo "Cómo"' locally
-    Then the command output contains 'Cómo €'
+    Then the command output contains 'Cómo'
