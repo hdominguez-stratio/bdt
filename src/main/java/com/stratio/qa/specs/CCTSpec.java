@@ -93,7 +93,6 @@ public class CCTSpec extends BaseGSpec {
         boolean contained = false;
         int actualoffset = 0;
         int lastoffset = 0;
-        //Aqui el inlessthan
         for (int x = 0; (x <= timeout) && (!contained); x += wait) {
             for (int i = 0; i < mesosTaskId.size() && !contained; i++) {
                 String endpointTask;
