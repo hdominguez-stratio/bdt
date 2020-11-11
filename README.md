@@ -271,8 +271,8 @@ Feature: Example Quit after tag
 
 - **Replacement Aspect**
 
-This tag pretends to be an improvement that allows to parameterize the scenarios and also allows you to save variables to be used later.
-First of all, this example show how to different parameters can be passed to the scenario.
+This tag pretends to be an improvement that allows to parameterize the scenarios and also allows you to save variables to be used on.
+First of all, this example shows how to different parameters can be passed to the scenario.
 
 Maven command example
 
@@ -286,9 +286,9 @@ To use this variable, we have tu define it in scenario with sintax `${variableNa
     Scenario: Dummy scenario
         And I wait '${test}' seconds
 ```
-This examples shows, as from the maven command the parameter is passed to the stage, so we would have a parameterized scenario. 
+This example shows how the parameter is passed from the maven command to the stage, so we would have a parameterized scenario. 
 
-In the other hand, it is also possible to save variables depending on the output of a scenario to be used later. Example:
+On the other hand, it is also possible to save variables depending on the output of a previous scenario to be used later. Example:
 ```
 Feature: Scenario outline replacements
 
@@ -297,7 +297,7 @@ Feature: Scenario outline replacements
     And I wait '!{SO_ENV_VAR}' seconds 
 ```
 
-As we can see in the example, we are saving the value '2' in order to be use in the next step. The sintax of this type of replacement is like this: `!{variable}`
+As we can see in the example, we are saving the value '2' in order to be used in the next step. The sintax of this type of replacement is like this: `!{variable}`
 
 It is important to know, that we can use the replacement in datatables too. Examples:
 ```
