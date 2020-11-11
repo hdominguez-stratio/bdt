@@ -280,7 +280,7 @@ Maven command example
     mvn clean verify -Dtest=valuetest
 ```
 
-To use this variable, we have tu define it in scenario with sintax `${variableName}`. Example:
+To use this variable, we have to define it in scenario with sintax `${variableName}`. Example:
 
 ```
     Scenario: Dummy scenario
