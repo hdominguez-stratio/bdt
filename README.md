@@ -269,3 +269,52 @@ Feature: Example Quit after tag
     Then something
   ```
 
+- **Replacement Aspect**
+
+This tag pretends to be an improvement that allows to parameterize the scenarios and also allows you to save variables to be used later.
+First of all, this example show how to different parameters can be passed to the scenario.
+
+Maven command example
+
+```
+    mvn clean verify -Dtest=valuetest
+```
+
+To use this variable, we have tu define it in scenario with sintax `${variableName}`. Example:
+
+```
+    Scenario: Dummy scenario
+        And I wait '${test}' seconds
+```
+This examples shows, as from the maven command the parameter is passed to the stage, so we would have a parameterized scenario. 
+
+In the other hand, it is also possible to save variables depending on the output of a scenario to be used later. Example:
+```
+Feature: Scenario outline replacements
+
+  Scenario Outline: inner scenario outline replacements
+    Given I save '2' in variable 'SO_ENV_VAR'
+    And I wait '!{SO_ENV_VAR}' seconds 
+```
+
+As we can see in the example, we are saving the value '2' in order to be use in the next step. The sintax of this type of replacement is like this: `!{variable}`
+
+It is important to know, that we can use the replacement in datatables too. Examples:
+```
+Feature: Datatable replacements
+
+  Scenario: Data table replacement enviroment(passed in variable)
+    Given I open a ssh connection to '${SSH}' with user 'root' and password 'stratio'
+    And My app is running in 'jenkins.int.stratio.com:80'
+    And I send a 'POST' request to '/FNF' based on 'schemas/rest.json' as 'json' with:
+      | $.type | UPDATE | ${SLEEPTEST} |
+    Then the service response status must be '404'
+
+  Scenario: Data table replacement enviroment(save in scenario)
+    Given I open a ssh connection to '${SSH}' with user 'root' and password 'stratio'
+    And My app is running in 'jenkins.int.stratio.com:80'
+    When I run 'echo datatable' in the ssh connection and save the value in environment variable 'ELEM'
+    And I send a 'POST' request to '/FNF' based on 'schemas/rest.json' as 'json' with:
+      | $.type | UPDATE | !{ELEM} |
+    Then the service response status must be '404'
+```
