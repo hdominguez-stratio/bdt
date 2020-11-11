@@ -318,3 +318,62 @@ Feature: Datatable replacements
       | $.type | UPDATE | !{ELEM} |
     Then the service response status must be '404'
 ```
+
+***@dcos***
+
+Using this tag before a feature will allow to read all info about de cluster. It connects to deadedalus machine in order to read the workspace of the cluster and obtain de needed info.
+The variables read are:
+
+| General Values | 
+|----------|
+|CLUSTER_SSH_USER |
+|BOOTSTRAP_IP | 
+|CLUSTER_SSH_PEM_PATH |
+|DCOS_PASSWORD| 
+|LDAP_USER|
+|LDAP_PASSWORD|
+|DCOS_*TENANT*_ID |
+|DCOS_*TENANT*_OWNER_USER |
+|DCOS_*TENANT*_OWNER_PASSWORD |
+|DCOS_*TENANT*_OWNER_GROUP |
+|DCOS_*TENANT*_OWNER_POLICY_NAME |
+|EOS_CLUSTER_ID |
+|EOS_SCHEMA_VERSION |
+|EOS_DNS_SEARCH |
+|EOS_INTERNAL_DOMAIN|
+|DCOS_IP|
+|DCOS_TENANT|
+|EOS_VAULT_HOST |
+|EOS_VAULT_PORT |
+|VAULT_TOKEN |
+|PUBLIC_NODE|
+|EOS_ACCESS_POINT|
+|EOS_REALM|
+|ADDRESS_POOL |
+|DOCKER_REGISTRY |
+|EXTERNAL_DOCKER_REGISTRY |
+|ARTIFACT_REPOSITORY|
+|CONSUL_DATACENTER|
+|KDC_HOST|
+|KDC_PORT|
+|KADMIN_HOST|
+|KADMIN_PORT|
+
+| LDAP values | 
+|----------|
+|LDAP_URL |
+|LDAP_PORT | 
+|LDAP_USER_DN |
+|LDAP_GROUP_DN| 
+|LDAP_BASE|
+|LDAP_ADMIN_GROUP|
+
+|Marathon Services |
+|----------|
+|cct-marathon-services_id|
+|cct-universe_id|
+|deploy_api_id|
+|cct_ui_id|
+|configuration_api_id|
+
+All this variables can be used like replacementAspectJ in scenarios, in order to make the execution of the tests easier
