@@ -100,9 +100,14 @@ _Examples:_
 ```
 
 ```
-    @include(feature:sample.feature,scenario:Not so dummy scenario,params:param1=1)
+    @include(feature:sample.feature,scenario:Not so dummy scenario,params:[param1:1])
     Scenario: Dummy scenario
           And I wait '${SECS}' seconds
+```
+
+```
+     Scenario: Included scenario
+          And I wait '<param1>' seconds
 ```
 
 - **LoopTagAspect**

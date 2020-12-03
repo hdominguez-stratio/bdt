@@ -518,7 +518,7 @@
             <version>${crossdata-drivers.version}</version>
         </dependency>
         <dependency>
-            <groupId>de.rtner</groupId>
+            <group--aId>de.rtner</group--aId>
             <artifactId>PBKDF2</artifactId>
             <version>1.1.0</version>
             <exclusions>
