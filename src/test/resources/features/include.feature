@@ -10,6 +10,6 @@ Feature: Include Aspect with params
   @include(feature:logger.feature,scenario:includeAspect with params,params:[paramtest:!{test}])
   Scenario: Test scenario include env save previously
 
-  @include(feature:logger.feature,scenario:includeAspect with params,params:[paramtest:${include}])
+  @include(feature:logger.feature,scenario:includeAspect with params,params:[paramtest:${INCLUDE}])
   Scenario: Test scenario include enviroment passed by argument
 
