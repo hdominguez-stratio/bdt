@@ -111,7 +111,7 @@ public class IncludeTagAspectTest {
     public void testParseLinesParams() throws IncludeException {
         String[] originalFeature = new String[]
                 {"Feature: Test",
-                        "@include(feature:logger.feature,scenario:includeAspect with params, params:[paramtest:${pepe}])",
+                        "@include(feature:includeTemplate.feature,scenario:includeAspect with params, params:[paramtest:${pepe}])",
                         "Scenario: Scenario with include",
                         "Given I run 'echo 1' locally"};
         List<String> lines = new ArrayList<>(Arrays.asList(originalFeature));
